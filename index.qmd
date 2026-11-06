@@ -1,0 +1,525 @@
+---
+title: "PRUEBAS DE NORMALIDAD"
+subtitle: "Algunas pruebas analíticas y gráficas"
+author: 
+  - name: Dagoberto Salgado Horta
+    affiliation: "Universidad del Tolima"
+    affiliation-url: "https://www.ut.edu.co/"
+date: today
+lang: es
+title-block-banner: "#98b6ed"
+
+format:
+  html:
+    page-layout: full
+    fontsize: 14pt
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    number-sections: true
+    code-fold: true
+    code-summary: "Ver código"
+    theme: dark
+    highlight-style: monokai
+    html-math-method: katex
+    smooth-scroll: true
+    link-external-newwindow: true
+    code-overflow: scroll
+    favicon: favicon.ico
+    css: estilos.css
+    
+editor: visual
+
+knitr:
+  opts_chunk:
+    message: false
+    warning: false
+    fig.align: center
+    fig.width: 6
+    fig.height: 6
+    out.width: "70%"
+---
+
+```{=html}
+<div style="position:absolute; top:10px; right:10px;">
+<img src="Logo_ut.png" width="150">
+</div>
+```
+
+```{=html}
+<style>
+body{
+  background-color:#f7f6ed;
+  font-size:130%;
+  text-align:justify;
+}
+</style>
+```
+
+# .Cargar paquetes
+
+```{r}
+ipak <- function(pkg){
+
+  options(repos = c(CRAN="https://cloud.r-project.org"))
+
+  new.pkg <- pkg[!(pkg %in% rownames(installed.packages()))]
+
+  if(length(new.pkg)) install.packages(new.pkg, dependencies = TRUE)
+
+  invisible(lapply(pkg, function(p)
+    suppressPackageStartupMessages(library(p, character.only = TRUE))
+  ))
+}
+
+packages <- c("tidyverse","kableExtra","psych","readxl")
+
+ipak(packages)
+```
+
+# .Introducción
+
+Las pruebas de normalidad son procedimientos estadísticos que permiten determinar si un conjunto de datos presenta un comportamiento compatible con una distribución normal o gaussiana.
+
+La distribución normal es una de las distribuciones de probabilidad más importantes en estadística, debido a su aplicación en los procedimientos de inferencia estadística, particularmente en la construcción de intervalos de confianza y pruebas de hipótesis.
+
+Muchos métodos estadísticos paramétricos requieren determinados supuestos relacionados con la normalidad. Por esta razón, antes de aplicar procedimientos como la prueba *t* de Student, el análisis de varianza (ANOVA) o determinados modelos estadísticos, es importante evaluar si los datos cumplen razonablemente este supuesto.
+
+Es importante señalar que no todos los procedimientos estadísticos requieren que las variables originales tengan distribución normal. En algunos modelos, el supuesto de normalidad se refiere a los errores o residuos del modelo y no necesariamente a la variable observada.
+
+# .Concepto de normalidad
+
+Una variable aleatoria continua $X$ tiene distribución normal cuando su función de densidad de probabilidad está definida por:
+
+$$
+f(x)=\frac{1}{\sigma\sqrt{2\pi}}
+e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
+$$
+
+Donde:
+
+- $\mu$: media poblacional.
+- $\sigma$: desviación estándar poblacional.
+- $\sigma^2$: varianza poblacional.
+- $e$: constante exponencial.
+- $\pi$: constante matemática.
+
+Se representa mediante:
+
+$$
+X\sim N(\mu,\sigma^2)
+$$
+
+**Características de la distribución normal**
+
+1.  Es una distribución continua.
+2.  Tiene forma de campana y es simétrica respecto a la media.
+3.  La media, mediana y moda coinciden.
+4.  El área total bajo la curva es igual a uno.
+5.  Sus extremos son asintóticos al eje horizontal.
+6.  Está determinada por dos parámetros: la media y la desviación estándar.
+7.  Presenta simetría respecto a su media poblacional.
+
+**Regla empírica**
+
+En una distribución normal se cumple aproximadamente que:
+
+- El 68,27 % de las observaciones se encuentra entre una desviación estándar alrededor de la media.
+- El 95,45 % se encuentra entre dos desviaciones estándar.
+- El 99,73 % se encuentra entre tres desviaciones estándar.
+
+Matemáticamente:
+
+$$
+P(\mu-\sigma<X<\mu+\sigma)=0.6827
+$$
+
+$$
+P(\mu-2\sigma<X<\mu+2\sigma)=0.9545
+$$
+
+$$
+P(\mu-3\sigma<X<\mu+3\sigma)=0.9973
+$$
+
+**Importancia de las pruebas de normalidad**
+
+La evaluación de la normalidad es importante porque permite:
+
+- Identificar si los datos presentan un comportamiento aproximadamente normal.
+- Orientar la selección de procedimientos estadísticos paramétricos o no paramétricos.
+- Evaluar los supuestos de determinados modelos estadísticos.
+- Identificar posibles asimetrías y desviaciones importantes respecto a la normalidad.
+- Complementar el análisis exploratorio de datos.
+
+Las pruebas estadísticas deben combinarse con procedimientos gráficos y con el conocimiento del diseño del estudio.
+
+**Hipótesis estadísticas en las pruebas de normalidad**
+
+Las pruebas de normalidad se fundamentan en un contraste de hipótesis.
+
+**Hipótesis nula (**$H_0$):
+
+Los datos provienen de una población con distribución normal.
+
+$$
+H_0:X\sim N(\mu,\sigma^2)
+$$
+
+**Hipótesis alternativa (**$H_1$):
+
+Los datos no provienen de una población con distribución normal.
+
+$$
+H_1:X\not\sim N(\mu,\sigma^2)
+$$
+
+**Nivel de significancia**
+
+El nivel de significancia representa la probabilidad máxima tolerada de cometer un error tipo I. Generalmente se utiliza:
+
+$$
+\alpha=0.05
+$$
+
+## 3.2. Regla de decisión
+
+La decisión se realiza comparando el valor p obtenido con el nivel de significancia.
+
+| Condición | Decisión estadística | Interpretación |
+|:-----------------------|:-----------------------|:-----------------------|
+| $p>\alpha$ | No se rechaza $H_0$ | No existe evidencia estadística suficiente para afirmar que los datos se apartan de una distribución normal. |
+| $p\leq\alpha$ | Se rechaza $H_0$ | Existe evidencia estadística de que los datos no siguen una distribución normal. |
+
+::: callout-important
+## No rechazar la hipótesis nula no significa demostrar que los datos tienen distribución normal. Significa que la prueba no encontró evidencia suficiente para rechazarla.
+:::
+
+# .Principales pruebas de normalidad
+
+Entre los procedimientos más utilizados se encuentran:
+
+1.  Prueba de Shapiro-Wilk.
+2.  Prueba de Kolmogorov-Smirnov con corrección de Lilliefors.
+3.  Prueba de Anderson-Darling.
+4.  Prueba de Jarque-Bera.
+
+## .Prueba de Shapiro-Wilk
+
+La prueba de Shapiro-Wilk fue desarrollada por Samuel Shapiro y Martin Wilk en 1965. Es uno de los procedimientos más utilizados para evaluar la normalidad, especialmente en muestras pequeñas y medianas.
+
+El estadístico de prueba está definido por:
+
+$$
+W=\frac{\left(\sum_{i=1}^{n}a_i x_{(i)}\right)^2}
+{\sum_{i=1}^{n}(x_i-\bar{x})^2}
+$$
+
+Donde:
+
+- $W$: estadístico de Shapiro-Wilk.
+- $n$: tamaño de la muestra.
+- $x_{(i)}$: observaciones ordenadas de menor a mayor.
+- $a_i$: coeficientes calculados a partir de los estadísticos de orden de una distribución normal.
+- $\bar{x}$: media muestral.
+
+El estadístico $W$ toma valores entre cero y uno. Valores cercanos a uno indican mayor compatibilidad con la normalidad, aunque la decisión formal se realiza mediante el valor p.
+
+**Hipótesis:**
+
+$$
+H_0:\text{Los datos siguen una distribución normal}
+$$
+
+$$
+H_1:\text{Los datos no siguen una distribución normal}
+$$
+
+**Aplicación en R:**
+
+```{r}
+# Datos de ejemplo
+datos <- c(12, 14, 15, 13, 16, 17, 14, 15,
+           13, 16, 18, 14, 15, 17, 13, 16)
+
+# Prueba de Shapiro-Wilk
+shapiro.test(datos)
+```
+
+## .Prueba de Kolmogorov-Smirnov y corrección de Lilliefors
+
+La prueba de Kolmogorov-Smirnov compara la función de distribución empírica de los datos con una función de distribución teórica.
+
+Su estadístico está definido por:
+
+$$
+D=\sup_x|F_n(x)-F_0(x)|
+$$
+
+Donde:
+
+- $D$: estadístico de Kolmogorov-Smirnov.
+- $F_n(x)$: función de distribución empírica.
+- $F_0(x)$: función de distribución teórica.
+- $\sup$: valor máximo de la diferencia absoluta.
+
+Cuando se evalúa normalidad y los parámetros de la distribución normal se estiman a partir de la misma muestra, se requiere una corrección, como la de Lilliefors.
+
+**Aplicación en R:**
+
+```{r}
+# Instalar el paquete si es necesario
+# install.packages("nortest")
+
+library(nortest)
+
+# Prueba de Lilliefors
+lillie.test(datos)
+```
+
+::: callout-note
+## La función \`ks.test()\` de R no debe utilizarse directamente con parámetros normales estimados a partir de los mismos datos usando sus valores críticos habituales. Para este escenario es preferible utilizar Lilliefors.
+:::
+
+## .Prueba de Anderson-Darling
+
+La prueba de Anderson-Darling evalúa las diferencias entre la distribución empírica y la distribución teórica, otorgando mayor peso a las discrepancias en las colas de la distribución.
+
+Su estadístico general es:
+
+$$
+A^2=-n-\frac{1}{n}
+\sum_{i=1}^{n}(2i-1)
+\left[
+\ln F(x_{(i)})+
+\ln(1-F(x_{(n+1-i)}))
+\right]
+$$
+
+Donde:
+
+- $A^2$: estadístico de Anderson-Darling.
+- $n$: tamaño de la muestra.
+- $F(x)$: función de distribución acumulada normal.
+- $x_{(i)}$: observaciones ordenadas.
+
+**Aplicación en R:**
+
+```{r}
+library(nortest)
+
+# Prueba de Anderson-Darling
+ad.test(datos)
+```
+
+## .Prueba de Jarque-Bera
+
+La prueba de Jarque-Bera evalúa la normalidad a partir de dos características de la distribución: asimetría y curtosis.
+
+El estadístico se define como:
+
+$$
+JB=\frac{n}{6}
+\left[
+S^2+\frac{(K-3)^2}{4}
+\right]
+$$
+
+Donde:
+
+- $JB$: estadístico de Jarque-Bera.
+- $n$: tamaño de la muestra.
+- $S$: coeficiente de asimetría.
+- $K$: coeficiente de curtosis.
+
+Bajo la hipótesis nula y condiciones asintóticas, el estadístico sigue aproximadamente una distribución chi-cuadrado con dos grados de libertad:
+
+$$
+JB\sim\chi^2_{(2)}
+$$
+
+**Hipótesis:**
+
+$$
+H_0:S=0,\quad K=3
+$$
+
+$$
+H_1:S\neq0\quad \text{o}\quad K\neq3
+$$
+
+**Aplicación en R:**
+
+```{r}
+# Instalar el paquete si es necesario
+# install.packages("tseries")
+
+library(tseries)
+
+# Prueba de Jarque-Bera
+jarque.bera.test(datos)
+```
+
+**Comparación de las pruebas de normalidad**
+
+| Prueba | Fundamento | Característica |
+|:-----------------------|:-----------------------|:-----------------------|
+| Shapiro-Wilk | Estadísticos de orden | Muy utilizada para evaluar normalidad. |
+| Kolmogorov-Smirnov-Lilliefors | Diferencia entre distribuciones | Considera la estimación de parámetros cuando se aplica Lilliefors. |
+| Anderson-Darling | Diferencias entre distribuciones | Mayor sensibilidad a discrepancias en las colas. |
+| Jarque-Bera | Asimetría y curtosis | Utiliza propiedades de forma de la distribución. |
+
+# .Métodos gráficos para evaluar la normalidad
+
+Las pruebas estadísticas deben complementarse con métodos gráficos, puesto que permiten observar características que podrían pasar inadvertidas mediante un único valor p.
+
+## .Histograma
+
+El histograma permite observar la forma de la distribución de frecuencias de una variable cuantitativa.
+
+```{r}
+library(ggplot2)
+
+ggplot(data.frame(datos), aes(x = datos)) +
+  geom_histogram(
+    aes(y = after_stat(density)),
+    bins = 8,
+    fill = "steelblue",
+    color = "white"
+  ) +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = mean(datos), sd = sd(datos)),
+    color = "red",
+    linewidth = 1
+  ) +
+  labs(
+    title = "Histograma y curva normal",
+    x = "Valores",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+```
+
+## .Gráfico Q-Q normal
+
+El gráfico Q-Q (cuantil-cuantil) compara los cuantiles observados de la muestra con los cuantiles teóricos de una distribución normal.
+
+```{r}
+ggplot(data.frame(datos), aes(sample = datos)) +
+  stat_qq(color = "steelblue") +
+  stat_qq_line(color = "red", linewidth = 1) +
+  labs(
+    title = "Gráfico Q-Q normal",
+    x = "Cuantiles teóricos",
+    y = "Cuantiles muestrales"
+  ) +
+  theme_minimal()
+```
+
+**Interpretación del gráfico Q-Q:**
+
+- Puntos cercanos a la línea: comportamiento compatible con la normalidad.
+- Curvatura sistemática: posible asimetría.
+- Desviaciones en los extremos: posibles diferencias en las colas.
+- Puntos muy alejados de la línea: posibles valores atípicos o desviaciones importantes.
+
+# .Ejemplo 
+
+Una institución educativa desea determinar si las calificaciones obtenidas por un grupo de estudiantes presentan una distribución aproximadamente normal.
+
+Se selecciona una muestra de 20 estudiantes y se registran las siguientes calificaciones:
+
+```{r}
+calificaciones <- c(
+  65, 72, 75, 80, 68,
+  74, 78, 82, 70, 76,
+  85, 73, 77, 69, 81,
+  74, 79, 83, 71, 75
+)
+
+calificaciones
+```
+
+## .Estadísticos descriptivos
+
+```{r}
+library(dplyr)
+
+data.frame(Calificaciones = calificaciones) |>
+  summarise(
+    n = n(),
+    Media = mean(Calificaciones),
+    Mediana = median(Calificaciones),
+    Desviacion = sd(Calificaciones),
+    Minimo = min(Calificaciones),
+    Maximo = max(Calificaciones)
+  )
+```
+
+## .Aplicación de Shapiro-Wilk
+
+```{r}
+resultado <- shapiro.test(calificaciones)
+
+resultado
+```
+
+## .Interpretación del resultado
+
+Se establece un nivel de significancia del 5 %:
+
+$$
+\alpha=0.05
+$$
+
+La decisión estadística se fundamenta en el valor p obtenido:
+
+- Si el valor p es superior a 0.05, no se rechaza la hipótesis nula.
+- Si el valor p es menor o igual a 0.05, se rechaza la hipótesis nula.
+
+La conclusión debe redactarse considerando el resultado obtenido y el contexto de la investigación.
+
+# .Consideraciones 
+
+**1. Tamaño de muestra.** En muestras pequeñas, las pruebas pueden tener poca potencia para detectar desviaciones de la normalidad. En muestras muy grandes, pequeñas desviaciones pueden producir valores p estadísticamente significativos.
+
+**2. Evaluación gráfica.** Es recomendable combinar Shapiro-Wilk con histogramas y gráficos Q-Q.
+
+**3. Valores atípicos.** Los valores extremos pueden afectar considerablemente los resultados de las pruebas de normalidad.
+
+**4. Normalidad y teorema central del límite.** El teorema central del límite establece condiciones bajo las cuales la distribución de la media muestral se aproxima a una distribución normal cuando aumenta el tamaño de muestra. Esto no significa que los datos originales deban ser normales.
+
+**5. Normalidad en modelos estadísticos.** En modelos como la regresión lineal clásica, cuando se requiere el supuesto de normalidad para la inferencia exacta en muestras pequeñas, este se refiere a los errores condicionados a las variables explicativas, no necesariamente a la distribución de cada variable original.
+
+# .Selección de procedimientos estadísticos
+
+La evaluación de normalidad puede orientar la selección de procedimientos estadísticos, pero no debe ser el único criterio.
+
+| Situación | Procedimiento posible |
+|:-----------------------------------|:-----------------------------------|
+| Una muestra frente a un valor de referencia | Prueba t de una muestra o Wilcoxon de una muestra |
+| Dos muestras independientes | t de Student o Welch; Mann-Whitney como alternativa |
+| Dos muestras relacionadas | t pareada o Wilcoxon de rangos con signo |
+| Tres o más grupos independientes | ANOVA o Kruskal-Wallis |
+| Tres o más mediciones relacionadas | ANOVA de medidas repetidas o Friedman |
+
+La elección también debe considerar el diseño del estudio, la independencia de las observaciones, la escala de medición, la homogeneidad de varianzas y otros supuestos.
+
+# .Conclusiones
+
+Las pruebas de normalidad constituyen herramientas fundamentales del análisis estadístico, ya que permiten evaluar la compatibilidad de los datos con una distribución normal.
+
+Entre las pruebas más utilizadas se encuentran Shapiro-Wilk, Kolmogorov-Smirnov con corrección de Lilliefors, Anderson-Darling y Jarque-Bera.
+
+La prueba de Shapiro-Wilk es una alternativa ampliamente utilizada, mientras que los procedimientos gráficos, particularmente el histograma y el gráfico Q-Q, permiten complementar la evaluación.
+
+Finalmente, la selección de una prueba estadística no debe depender exclusivamente del resultado de una prueba de normalidad. Es necesario considerar el diseño de investigación, el tamaño de muestra, la naturaleza de los datos y los demás supuestos del procedimiento estadístico.
+
+# .Referencias bibliográficas
+
+- Anderson, T. W., & Darling, D. A. (1954). A test of goodness of fit. *Journal of the American Statistical Association, 49*(268), 765–769.
+- Jarque, C. M., & Bera, A. K. (1987). A test for normality of observations and regression residuals. *International Statistical Review, 55*(2), 163–172.
+- Kolmogorov, A. (1933). Sulla determinazione empirica di una legge di distribuzione. *Giornale dell'Istituto Italiano degli Attuari, 4*, 83–91.
+- Lilliefors, H. W. (1967). On the Kolmogorov-Smirnov test for normality with mean and variance unknown. *Journal of the American Statistical Association, 62*(318), 399–402.
+- Shapiro, S. S., & Wilk, M. B. (1965). An analysis of variance test for normality (complete samples). *Biometrika, 52*(3–4), 591–611.
