@@ -424,7 +424,7 @@ ggplot(data.frame(datos), aes(sample = datos)) +
 - Desviaciones en los extremos: posibles diferencias en las colas.
 - Puntos muy alejados de la línea: posibles valores atípicos o desviaciones importantes.
 
-# .Ejemplo 
+# .Ejemplo
 
 Una institución educativa desea determinar si las calificaciones obtenidas por un grupo de estudiantes presentan una distribución aproximadamente normal.
 
@@ -480,7 +480,7 @@ La decisión estadística se fundamenta en el valor p obtenido:
 
 La conclusión debe redactarse considerando el resultado obtenido y el contexto de la investigación.
 
-# .Consideraciones 
+# .Consideraciones
 
 **1. Tamaño de muestra.** En muestras pequeñas, las pruebas pueden tener poca potencia para detectar desviaciones de la normalidad. En muestras muy grandes, pequeñas desviaciones pueden producir valores p estadísticamente significativos.
 
@@ -505,6 +505,12 @@ La evaluación de normalidad puede orientar la selección de procedimientos esta
 | Tres o más mediciones relacionadas | ANOVA de medidas repetidas o Friedman |
 
 La elección también debe considerar el diseño del estudio, la independencia de las observaciones, la escala de medición, la homogeneidad de varianzas y otros supuestos.
+
+::: callout-note
+## Dar clic sobre la figura para simular pruebas
+:::
+
+[![](images/clipboard-2361068106.png){fig-align="center"}](https://connect.posit.cloud/dasaho2/content/01a1b36a-02c3-2d1f-38fd-fde64cb0026c?utm_source=rsconnect-rstudio)
 
 # .Conclusiones
 

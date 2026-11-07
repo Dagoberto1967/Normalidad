@@ -1,0 +1,12 @@
+name: normalidad
+title: Normalidad
+username: dasaho2
+account: dasaho2
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a1b34f-5239-8cf2-09cc-05d0d479ef89
+bundleId:
+url: https://connect.posit.cloud/dasaho2/content/01a1b34f-5239-8cf2-09cc-05d0d479ef89
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
